@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from "react";
+import React, { useRef, useEffect, useState } from "react";
 import io from "socket.io-client";
 
 const Room = (props) => {
@@ -9,6 +9,10 @@ const Room = (props) => {
   const otherUser = useRef();
   const userStream = useRef();
   const senders = useRef([]);
+
+  const sendChannel = useRef();
+  const [text, setText] = useState("");
+  const [messages, setMessages] = useState([]);
 
   useEffect(() => {
     navigator.mediaDevices
@@ -27,16 +31,6 @@ const Room = (props) => {
 
         socketRef.current.on("user joined", (userID) => {
           otherUser.current = userID;
-
-          //   console.log("user stream is: ", userStream.current);
-
-          //   userStream.current
-          //     .getTracks()
-          //     .forEach((track) =>
-          //       senders.current.push((track, userStream.current))
-          //     );
-
-          //   console.log("call user fun senders: ", senders.current);
         });
 
         socketRef.current.on("offer", handleRecieveCall);
@@ -57,8 +51,17 @@ const Room = (props) => {
         )
       );
 
-    console.log("call user fun senders: ", senders.current);
+    //add
+    sendChannel.current = peerRef.current.createDataChannel("sendChannel");
+    sendChannel.current.onmessage = handleReceiveMessage;
+    //add
   }
+
+  //add
+  function handleReceiveMessage(e) {
+    setMessages((messages) => [...messages, { yours: false, value: e.data }]);
+  }
+  //add
 
   function createPeer(userID) {
     const peer = new RTCPeerConnection({
@@ -100,16 +103,18 @@ const Room = (props) => {
 
   function handleRecieveCall(incoming) {
     peerRef.current = createPeer();
+
+    // add
+    peerRef.current.ondatachannel = (event) => {
+      sendChannel.current = event.channel;
+      sendChannel.current.onmessage = handleReceiveMessage;
+    };
+    // add
+
     const desc = new RTCSessionDescription(incoming.sdp);
     peerRef.current
       .setRemoteDescription(desc)
       .then(() => {
-        // userStream.current
-        //   .getTracks()
-        //   .forEach((track) =>
-        //     peerRef.current.addTrack(track, userStream.current)
-        //   );
-
         userStream.current
           .getTracks()
           .forEach((track) =>
@@ -117,8 +122,6 @@ const Room = (props) => {
               peerRef.current.addTrack(track, userStream.current)
             )
           );
-
-        console.log("call user fun senders: ", senders.current);
       })
       .then(() => {
         return peerRef.current.createAnswer();
@@ -178,22 +181,65 @@ const Room = (props) => {
     });
   }
 
+  function handleChange(e) {
+    setText(e.target.value);
+  }
+
+  //add
+  function sendMessage() {
+    sendChannel.current.send(text);
+    setMessages((messages) => [...messages, { yours: true, value: text }]);
+    setText("");
+  }
+  //add
+
+  function renderMessage(message, index) {
+    if (message.yours) {
+      return (
+        <div key={index}>
+          <p>{message.value}</p>
+        </div>
+      );
+    }
+
+    return (
+      <div key={index}>
+        <p>{message.value}</p>
+      </div>
+    );
+  }
+
   return (
     <div>
-      <video
-        muted
-        controls
-        style={{ height: 500, width: 500 }}
-        autoPlay
-        ref={userVideo}
-      />
-      <video
-        controls
-        style={{ height: 500, width: 500 }}
-        autoPlay
-        ref={partnerVideo}
-      />
-      <button onClick={shareScreen}>Share screen</button>
+      <div>
+        <video
+          muted
+          controls
+          style={{ height: 500, width: 500 }}
+          autoPlay
+          ref={userVideo}
+        />
+        <video
+          controls
+          style={{ height: 500, width: 500 }}
+          autoPlay
+          ref={partnerVideo}
+        />
+        <button onClick={shareScreen}>Share screen</button>
+      </div>
+
+      <div style={{ margin: "40px" }}>
+        <div className="message-box">
+          <div>{messages.map(renderMessage)}</div>
+        </div>
+        <input
+          value={text}
+          type="text"
+          placeholder="say something..."
+          onChange={handleChange}
+        ></input>
+        <button onClick={sendMessage}>Send</button>
+      </div>
     </div>
   );
 };
