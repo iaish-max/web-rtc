@@ -68,8 +68,6 @@ const Room = (props) => {
 
           setPeerJoined(false);
           console.log("user left called");
-
-          props.history.push(`/`);
         });
         //add
       });
@@ -244,33 +242,6 @@ const Room = (props) => {
     );
   }
 
-  //add
-  // function leaveCall() {
-  //   setPeerJoined(false);
-
-  //   if (userVideo.srcObject) {
-  //     userVideo.srcObject.getTracks().forEach((track) => {
-  //       track.stop();
-  //     });
-  //   }
-
-  //   if (partnerVideo.srcObject) {
-  //     partnerVideo.srcObject.getTracks().forEach((track) => {
-  //       track.stop();
-  //     });
-  //   }
-
-  //   if (peerRef.current) {
-  //     peerRef.current.ontrack = null;
-  //     peerRef.current.onicecandidate = null;
-  //     peerRef.current.close();
-  //     peerRef.current = null;
-  //   }
-
-  //   props.history.push(`/`);
-  // }
-  //add
-
   return (
     <div>
       <div>
@@ -290,9 +261,6 @@ const Room = (props) => {
           />
         )}
         <button onClick={shareScreen}>Share screen</button>
-        {/* add */}
-        {/* <button onClick={leaveCall}>Leave call</button> */}
-        {/* add */}
       </div>
 
       <div style={{ margin: "40px" }}>
