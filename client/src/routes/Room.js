@@ -14,6 +14,10 @@ const Room = (props) => {
   const [text, setText] = useState("");
   const [messages, setMessages] = useState([]);
 
+  //add
+  const [peerJoined, setPeerJoined] = useState(false);
+  //add
+
   useEffect(() => {
     navigator.mediaDevices
       .getUserMedia({ audio: true, video: true })
@@ -38,6 +42,36 @@ const Room = (props) => {
         socketRef.current.on("answer", handleAnswer);
 
         socketRef.current.on("ice-candidate", handleNewICECandidateMsg);
+
+        //add
+        socketRef.current.on("user left", () => {
+          //   peerRef.current.destroy();
+
+          // if (userVideo.srcObject) {
+          //   userVideo.srcObject.getTracks().forEach((track) => {
+          //     track.stop();
+          //   });
+          // }
+
+          // if (partnerVideo.srcObject) {
+          //   partnerVideo.srcObject.getTracks().forEach((track) => {
+          //     track.stop();
+          //   });
+          // }
+
+          if (peerRef.current) {
+            peerRef.current.ontrack = null;
+            peerRef.current.onicecandidate = null;
+            peerRef.current.close();
+            peerRef.current = null;
+          }
+
+          setPeerJoined(false);
+          console.log("user left called");
+
+          props.history.push(`/`);
+        });
+        //add
       });
   }, []);
 
@@ -161,6 +195,9 @@ const Room = (props) => {
   }
 
   function handleTrackEvent(e) {
+    //add
+    setPeerJoined(true);
+    //add
     partnerVideo.current.srcObject = e.streams[0];
   }
 
@@ -185,13 +222,11 @@ const Room = (props) => {
     setText(e.target.value);
   }
 
-  //add
   function sendMessage() {
     sendChannel.current.send(text);
     setMessages((messages) => [...messages, { yours: true, value: text }]);
     setText("");
   }
-  //add
 
   function renderMessage(message, index) {
     if (message.yours) {
@@ -209,6 +244,33 @@ const Room = (props) => {
     );
   }
 
+  //add
+  // function leaveCall() {
+  //   setPeerJoined(false);
+
+  //   if (userVideo.srcObject) {
+  //     userVideo.srcObject.getTracks().forEach((track) => {
+  //       track.stop();
+  //     });
+  //   }
+
+  //   if (partnerVideo.srcObject) {
+  //     partnerVideo.srcObject.getTracks().forEach((track) => {
+  //       track.stop();
+  //     });
+  //   }
+
+  //   if (peerRef.current) {
+  //     peerRef.current.ontrack = null;
+  //     peerRef.current.onicecandidate = null;
+  //     peerRef.current.close();
+  //     peerRef.current = null;
+  //   }
+
+  //   props.history.push(`/`);
+  // }
+  //add
+
   return (
     <div>
       <div>
@@ -219,13 +281,18 @@ const Room = (props) => {
           autoPlay
           ref={userVideo}
         />
-        <video
-          controls
-          style={{ height: 500, width: 500 }}
-          autoPlay
-          ref={partnerVideo}
-        />
+        {peerJoined && (
+          <video
+            controls
+            style={{ height: 500, width: 500 }}
+            autoPlay
+            ref={partnerVideo}
+          />
+        )}
         <button onClick={shareScreen}>Share screen</button>
+        {/* add */}
+        {/* <button onClick={leaveCall}>Leave call</button> */}
+        {/* add */}
       </div>
 
       <div style={{ margin: "40px" }}>
