@@ -68,6 +68,8 @@ const Room = (props) => {
 
           setPeerJoined(false);
           console.log("user left called");
+
+          senders.current = [];
         });
         //add
       });
