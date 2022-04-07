@@ -8,11 +8,12 @@ const io = socket(server);
 const path = require("path");
 
 const rooms = {};
+const roomIDA = [];
 
 io.on("connection", (socket) => {
-  let roomIDO;
   socket.on("join room", (roomID) => {
-    roomIDO = roomID;
+    roomIDA.push(roomID);
+
     if (rooms[roomID]) {
       rooms[roomID].push(socket.id);
     } else {
@@ -27,6 +28,15 @@ io.on("connection", (socket) => {
 
   socket.on("disconnect", () => {
     console.log("disconnect event called");
+    let roomIDO;
+
+    for (var i = 0; i < roomIDA.length; i++) {
+      for (var j = 0; j < rooms[roomIDA[i]].length; j++) {
+        if (socket.id === rooms[roomIDA[i]][j]) {
+          roomIDO = roomIDA[i];
+        }
+      }
+    }
 
     console.log("rooms", rooms);
     console.log("roomIDO", roomIDO);
@@ -47,6 +57,8 @@ io.on("connection", (socket) => {
     console.log("rooms[roomIDO]", rooms[roomIDO]);
 
     console.log("arr length  is: ", rooms[roomIDO].length);
+
+    // all is remaining to delete roomIDO from roomIDA and rooms after removing both user.
   });
 
   socket.on("offer", (payload) => {
