@@ -272,7 +272,7 @@ const Room = (props) => {
     <div>
       <div>
         <video
-          // muted
+          muted
           // controls
           style={{ height: 500, width: 500 }}
           autoPlay
