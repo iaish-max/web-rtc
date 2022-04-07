@@ -252,6 +252,10 @@ const Room = (props) => {
     setMuteFlag(!muteFlag);
   }
 
+  function endCall() {
+    window.location.href = "https://intense-dawn-13733.herokuapp.com/";
+  }
+
   function renderMessage(message, index) {
     if (message.yours) {
       return (
@@ -289,6 +293,7 @@ const Room = (props) => {
         <button onClick={shareScreen}>Share screen</button>
         <button onClick={hideCamera}>Hide Camera</button>
         <button onClick={mute}>Mute</button>
+        <button onClick={endCall}>End Call</button>
       </div>
 
       <div style={{ margin: "40px" }}>

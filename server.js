@@ -7,17 +7,16 @@ const socket = require("socket.io");
 const io = socket(server);
 const path = require("path");
 
-const rooms = {};
-const roomIDA = [];
+let rooms = {};
+let roomIDA = [];
 
 io.on("connection", (socket) => {
   socket.on("join room", (roomID) => {
-    roomIDA.push(roomID);
-
     if (rooms[roomID]) {
       rooms[roomID].push(socket.id);
     } else {
       rooms[roomID] = [socket.id];
+      roomIDA.push(roomID);
     }
     const otherUser = rooms[roomID].find((id) => id !== socket.id);
     if (otherUser) {
@@ -59,6 +58,37 @@ io.on("connection", (socket) => {
     console.log("arr length  is: ", rooms[roomIDO].length);
 
     // all is remaining to delete roomIDO from roomIDA and rooms after removing both user.
+    if (rooms[roomIDO].length === 0) {
+      console.log("rooms: ", rooms);
+      console.log("roomIDA: ", roomIDA);
+
+      var x = roomIDA.filter(function (value, index, arr) {
+        return value !== roomIDO;
+      });
+
+      console.log("x is: ", x);
+
+      roomIDA = x;
+
+      const newRooms = {};
+
+      for (const key of Object.keys(rooms)) {
+        if (key !== socket.id) {
+          for (var i = 0; i < rooms[key].length; i++) {
+            if (i === 0) {
+              newRooms[key] = [rooms[key][i]];
+            } else {
+              newRooms[key].push([rooms[key][i]]);
+            }
+          }
+        }
+      }
+
+      rooms = newRooms;
+
+      console.log("rooms: ", rooms);
+      console.log("roomIDA: ", roomIDA);
+    }
   });
 
   socket.on("offer", (payload) => {
