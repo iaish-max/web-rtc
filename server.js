@@ -26,13 +26,13 @@ io.on("connection", (socket) => {
   });
 
   socket.on("disconnect", () => {
-    // console.log("disconnect event called");
+    console.log("disconnect event called");
 
-    // console.log("rooms", rooms);
-    // console.log("roomIDO", roomIDO);
-    // console.log("rooms[roomIDO]", rooms[roomIDO]);
+    console.log("rooms", rooms);
+    console.log("roomIDO", roomIDO);
+    console.log("rooms[roomIDO]", rooms[roomIDO]);
 
-    // console.log("arr length  is: ", rooms[roomIDO].length);
+    console.log("arr length  is: ", rooms[roomIDO].length);
 
     var filtered = rooms[roomIDO].filter(function (value, index, arr) {
       return value !== socket.id;
@@ -41,6 +41,12 @@ io.on("connection", (socket) => {
     rooms[roomIDO] = filtered;
 
     socket.to(rooms[roomIDO][0]).emit("user left");
+
+    console.log("rooms", rooms);
+    console.log("roomIDO", roomIDO);
+    console.log("rooms[roomIDO]", rooms[roomIDO]);
+
+    console.log("arr length  is: ", rooms[roomIDO].length);
   });
 
   socket.on("offer", (payload) => {

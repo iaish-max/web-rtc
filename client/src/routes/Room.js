@@ -17,6 +17,8 @@ const Room = (props) => {
   //add
   const [peerJoined, setPeerJoined] = useState(false);
   //add
+  const [hideCameraFlag, setHideCameraFlag] = useState(true);
+  const [muteFlag, setMuteFlag] = useState(false);
 
   useEffect(() => {
     navigator.mediaDevices
@@ -24,6 +26,8 @@ const Room = (props) => {
       .then((stream) => {
         userVideo.current.srcObject = stream;
         userStream.current = stream;
+
+        userStream.current.getTracks()[0].enabled = false;
 
         socketRef.current = io.connect("/");
         socketRef.current.emit("join room", props.match.params.roomID);
@@ -228,6 +232,26 @@ const Room = (props) => {
     setText("");
   }
 
+  function hideCamera() {
+    if (hideCameraFlag) {
+      userStream.current.getTracks()[1].enabled = false;
+    } else {
+      userStream.current.getTracks()[1].enabled = true;
+    }
+
+    setHideCameraFlag(!hideCameraFlag);
+  }
+
+  function mute() {
+    if (muteFlag) {
+      userStream.current.getTracks()[0].enabled = false;
+    } else {
+      userStream.current.getTracks()[0].enabled = true;
+    }
+
+    setMuteFlag(!muteFlag);
+  }
+
   function renderMessage(message, index) {
     if (message.yours) {
       return (
@@ -248,21 +272,23 @@ const Room = (props) => {
     <div>
       <div>
         <video
-          muted
-          controls
+          // muted
+          // controls
           style={{ height: 500, width: 500 }}
           autoPlay
           ref={userVideo}
         />
         {peerJoined && (
           <video
-            controls
+            // controls
             style={{ height: 500, width: 500 }}
             autoPlay
             ref={partnerVideo}
           />
         )}
         <button onClick={shareScreen}>Share screen</button>
+        <button onClick={hideCamera}>Hide Camera</button>
+        <button onClick={mute}>Mute</button>
       </div>
 
       <div style={{ margin: "40px" }}>
