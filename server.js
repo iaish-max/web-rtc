@@ -58,37 +58,37 @@ io.on("connection", (socket) => {
     console.log("arr length  is: ", rooms[roomIDO].length);
 
     // all is remaining to delete roomIDO from roomIDA and rooms after removing both user.
-    if (rooms[roomIDO].length === 0) {
-      console.log("rooms: ", rooms);
-      console.log("roomIDA: ", roomIDA);
+    // if (rooms[roomIDO].length === 0) {
+    //   console.log("rooms: ", rooms);
+    //   console.log("roomIDA: ", roomIDA);
 
-      var x = roomIDA.filter(function (value, index, arr) {
-        return value !== roomIDO;
-      });
+    //   var x = roomIDA.filter(function (value, index, arr) {
+    //     return value !== roomIDO;
+    //   });
 
-      console.log("x is: ", x);
+    //   console.log("x is: ", x);
 
-      roomIDA = x;
+    //   roomIDA = x;
 
-      const newRooms = {};
+    //   const newRooms = {};
 
-      for (const key of Object.keys(rooms)) {
-        if (key !== socket.id) {
-          for (var i = 0; i < rooms[key].length; i++) {
-            if (i === 0) {
-              newRooms[key] = [rooms[key][i]];
-            } else {
-              newRooms[key].push([rooms[key][i]]);
-            }
-          }
-        }
-      }
+    //   for (const key of Object.keys(rooms)) {
+    //     if (key !== socket.id) {
+    //       for (var i = 0; i < rooms[key].length; i++) {
+    //         if (i === 0) {
+    //           newRooms[key] = [rooms[key][i]];
+    //         } else {
+    //           newRooms[key].push([rooms[key][i]]);
+    //         }
+    //       }
+    //     }
+    //   }
 
-      rooms = newRooms;
+    //   rooms = newRooms;
 
-      console.log("rooms: ", rooms);
-      console.log("roomIDA: ", roomIDA);
-    }
+    //   console.log("rooms: ", rooms);
+    //   console.log("roomIDA: ", roomIDA);
+    // }
   });
 
   socket.on("offer", (payload) => {
