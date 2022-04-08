@@ -19,6 +19,7 @@ const Room = (props) => {
   //add
   const [hideCameraFlag, setHideCameraFlag] = useState(true);
   const [muteFlag, setMuteFlag] = useState(false);
+  const [full, setFull] = useState(false);
 
   useEffect(() => {
     navigator.mediaDevices
@@ -41,6 +42,11 @@ const Room = (props) => {
           otherUser.current = userID;
         });
 
+        socketRef.current.on("room full", () => {
+          setFull(!full);
+          window.location.href = "https://intense-dawn-13733.herokuapp.com/";
+        });
+
         socketRef.current.on("offer", handleRecieveCall);
 
         socketRef.current.on("answer", handleAnswer);
@@ -49,20 +55,6 @@ const Room = (props) => {
 
         //add
         socketRef.current.on("user left", () => {
-          //   peerRef.current.destroy();
-
-          // if (userVideo.srcObject) {
-          //   userVideo.srcObject.getTracks().forEach((track) => {
-          //     track.stop();
-          //   });
-          // }
-
-          // if (partnerVideo.srcObject) {
-          //   partnerVideo.srcObject.getTracks().forEach((track) => {
-          //     track.stop();
-          //   });
-          // }
-
           if (peerRef.current) {
             peerRef.current.ontrack = null;
             peerRef.current.onicecandidate = null;
@@ -76,6 +68,18 @@ const Room = (props) => {
           senders.current = [];
         });
         //add
+
+        let leaveRoomButton = document.getElementById("leaveButton");
+        leaveRoomButton.addEventListener("click", function () {
+          let obj = {
+            roomID: props.match.params.roomID,
+            otherUser: otherUser.current,
+          };
+          socketRef.current.emit("leave room", obj);
+          window.location.href = "https://intense-dawn-13733.herokuapp.com/";
+        });
+
+        socketRef.current.on("room full", () => {});
       });
   }, []);
 
@@ -252,10 +256,6 @@ const Room = (props) => {
     setMuteFlag(!muteFlag);
   }
 
-  function endCall() {
-    window.location.href = "https://intense-dawn-13733.herokuapp.com/";
-  }
-
   function renderMessage(message, index) {
     if (message.yours) {
       return (
@@ -293,7 +293,7 @@ const Room = (props) => {
         <button onClick={shareScreen}>Share screen</button>
         <button onClick={hideCamera}>Hide Camera</button>
         <button onClick={mute}>Mute</button>
-        <button onClick={endCall}>End Call</button>
+        <button id="leaveButton">Leave Call.</button>
       </div>
 
       <div style={{ margin: "40px" }}>
